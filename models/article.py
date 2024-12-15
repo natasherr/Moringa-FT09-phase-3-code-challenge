@@ -1,3 +1,4 @@
+from database.connection import get_db_connection
 class Article:
     def __init__(self, id, title, content, author_id, magazine_id):
         self.id = id
@@ -24,3 +25,20 @@ class Article:
             raise ValueError(
                 "Please input some data"
             )
+        
+    def contributing_authors(self):
+        authors = {}
+        list_of_authors = []
+        for article in self.articles():
+            if article.author in authors:
+                authors[article.author] += 1
+            else:
+                authors[article.author] = 1  
+        for author in authors:
+            if authors[author] >= 2:
+                list_of_authors.append(author)   
+        if (list_of_authors):
+            return list_of_authors
+        else:
+            return None
+        
