@@ -22,7 +22,7 @@ def main():
 
     '''
         The following is just for testing purposes, 
-        you can modify it to meet the requirements of your implmentation.
+        you can modify it to meet the requirements of your implementation.
     '''
 
     # Create an author

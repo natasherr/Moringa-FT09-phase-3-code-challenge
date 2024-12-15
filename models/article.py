@@ -8,3 +8,19 @@ class Article:
 
     def __repr__(self):
         return f'<Article {self.title}>'
+    
+    @property
+    def title(self):
+        return self._title
+    
+    @title.setter
+    def title(self, title):
+        if hasattr(self, 'title'):
+            raise AttributeError("Title can't be changed after it has been instantiated!")
+        # Must be a string and characters must be btn 5 and 50 characters
+        if isinstance(title, str) and (len(title) >= 5 and len(title) <= 50):
+            self._title = title
+        else:
+            raise ValueError(
+                "Please input some data"
+            )
