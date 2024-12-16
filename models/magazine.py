@@ -10,7 +10,7 @@ class Magazine:
         self._category = category
 
     def __repr__(self):
-        return f'<Magazine {self.id} {self.name} {self.category}>'
+        return f'{self.id} {self.name} {self.category}'
     
     @property
     def id(self):

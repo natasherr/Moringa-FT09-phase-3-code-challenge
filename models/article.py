@@ -10,7 +10,7 @@ class Article:
         self.magazine_id = magazine_id
 
     def __repr__(self):
-        return f'<Article {self.title}>'
+        return f'{self.title}'
     
 
     @property
