@@ -1,4 +1,5 @@
 from database.connection import get_db_connection
+
 class Article:
     def __init__(self, id, title, content, author_id, magazine_id):
         self.id = id
@@ -26,19 +27,42 @@ class Article:
                 "Please input some data"
             )
         
-    def contributing_authors(self):
-        authors = {}
-        list_of_authors = []
-        for article in self.articles():
-            if article.author in authors:
-                authors[article.author] += 1
-            else:
-                authors[article.author] = 1  
-        for author in authors:
-            if authors[author] >= 2:
-                list_of_authors.append(author)   
-        if (list_of_authors):
-            return list_of_authors
+    def author(self):
+        from models.author import Author
+        conn = get_db_connection()
+        CURSOR = conn.cursor()
+        
+        sql = """
+            SELECT a.*
+            FROM authors a
+            INNER JOIN articles ar ON ar.author = a.id
+            WHERE ar.id = ?
+        """
+        CURSOR.execute(sql, (self.id))
+        author_data = CURSOR.fetchone()
+
+        if author_data:
+            return Author(*author_data)
         else:
             return None
+
+    def magazine(self):
+        from models.magazine import Magazine
+        conn = get_db_connection()
+        CURSOR = conn.cursor()
+       
+        sql = """
+            SELECT m.*
+            FROM magazines m
+            INNER JOIN articles ar ON ar.magazine = m.id
+            WHERE ar.id = ?
+        """
+        CURSOR.execute(sql, (self.id))
+        magazine_data = CURSOR.fetchone()
+
+        if magazine_data:
+            return Magazine(*magazine_data)
+        else:
+            return None
+
         
