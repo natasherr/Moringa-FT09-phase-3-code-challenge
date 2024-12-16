@@ -1,15 +1,16 @@
-
+# Import database
 from database.connection import get_db_connection
 
 class Magazine:
+
     all = {}
-    def __init__(self, id, name, category):
-        self.id = id
-        self.name = name
-        self.category = category
+    def __init__(self, id, name = None, category = None):
+        self._id = id
+        self._name = name
+        self._category = category
 
     def __repr__(self):
-        return f'<Magazine {self.name}>'
+        return f'<Magazine {self.id} {self.name} {self.category}>'
     
     @property
     def id(self):
@@ -19,47 +20,56 @@ class Magazine:
     def id(self, id):
         if isinstance(id, int):
             self._id = id
-    
+
+
     @property
     def name(self):
         return self._name
     
     @name.setter
-    def name(self,new_name):
-         # If the input is not a string, it should raise an error
-        if isinstance(new_name, str):
-        # using ValueError instead of print since it stops the execution of the program if there is an error in that input.
-        # If the input's length isn't between 2 and 16 chars, raise an error
-            if len(new_name) >= 2 and len(new_name) <= 16:
-                 self._name = new_name
-            else:
-                raise ValueError("name MUST be btn 2 and 16 characters")
-        else:
-            TypeError("name MUST be a string")
-    
-    
+    def name(self, new_name):
+        if isinstance(new_name, str) and 2 <= len(new_name) <= 16:
+            self._name = new_name
+
     @property
     def category(self):
         return self._category
     
     @category.setter
     def category(self, new_category):
-        # If the input is not a string, it should raise an error
-        if isinstance(new_category, str):
-            # If the input is empty(less than one character) it should raise an error
-            if len(new_category) > 0:
-                 self._category = new_category
-            else:
-                raise ValueError("Please input a category")
-        # using ValueError instead of print since it stops the execution of the program if there is an error in that input.
-        else:
-            TypeError("Category MUST be a string!!")
+        if isinstance(new_category, str) and len(new_category) > 0:
+            self._category = new_category
+    
+
+    def save(self):
+        conn = get_db_connection()
+        CURSOR = conn.cursor()
+        sql = """
+            INSERT INTO magazines (name, category)
+            VALUES (?,?)
+        """
+        CURSOR.execute(sql, (self.name, self.category))
+        conn.commit()
+        
+        self.id = CURSOR.lastrowid
+        type(self).all[self.id] = self
+
+    @classmethod
+    #creates a new entry in the database
+    def create(cls, name, category):
+        magazine = cls(name, category)
+        magazine.save()
+        return magazine
+    
+    def get_magazine_id(self):
+        return self.id
+    
 
     def articles(self):
         from models.article import Article
-        CONN = get_db_connection()
-        CURSOR = CONN.cursor()
-
+        conn = get_db_connection()
+        CURSOR = conn.cursor()
+        """retrieves and returns a list of articles in this magazine """
         sql = """
             SELECT ar.*
             FROM articles ar
@@ -80,7 +90,7 @@ class Magazine:
         from models.author import Author
         conn = get_db_connection()
         CURSOR = conn.cursor()
-
+        """retrieves and returns a lst of authors who wrote articles in this magazine"""
         sql = """
             SELECT DISTINCT a.*
             FROM authors a
@@ -100,7 +110,10 @@ class Magazine:
     def article_titles(self):
         conn = get_db_connection()
         CURSOR = conn.cursor()
-        
+        """
+        Retrieves and returns a list of titles (strings) of all articles written for this magazine.
+        Returns None if the magazine has no articles.
+        """
         sql = """
             SELECT ar.title
             FROM articles ar
@@ -121,7 +134,10 @@ class Magazine:
         from models.author import Author
         conn = get_db_connection()
         CURSOR = conn.cursor()
-        
+        """
+        Retrieves and returns a list of Author objects who wrote more than 2 articles for this magazine.
+        Returns None if the magazine has no authors with more than 2 publications.
+        """
         sql = """
             SELECT DISTINCT a.*
             FROM authors a
@@ -157,26 +173,3 @@ class Magazine:
         if row:
             return Magazine(*row)
         return None
-    
-    @classmethod
-    #creates a new entry in the database
-    def create(cls, name, category):
-        magazine = cls(name, category)
-        magazine.save()
-        return magazine
-    
-
-    def save(self):
-        conn = get_db_connection()
-        CURSOR = conn.cursor()
-        sql = """
-            INSERT INTO magazines (name, category)
-            VALUES (?,?)
-        """
-        CURSOR.execute(sql, (self.name, self.category))
-        conn.commit()
-        
-        self.id = CURSOR.lastrowid
-        type(self).all[self.id] = self
-
-    
