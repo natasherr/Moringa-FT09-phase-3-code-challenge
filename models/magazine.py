@@ -2,6 +2,7 @@
 from database.connection import get_db_connection
 
 class Magazine:
+    all = {}
     def __init__(self, id, name, category):
         self.id = id
         self.name = name
@@ -156,6 +157,13 @@ class Magazine:
         if row:
             return Magazine(*row)
         return None
+    
+    @classmethod
+    #creates a new entry in the database
+    def create(cls, name, category):
+        magazine = cls(name, category)
+        magazine.save()
+        return magazine
     
 
     def save(self):
